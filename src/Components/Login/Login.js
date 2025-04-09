@@ -1,12 +1,59 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import TimeStart from '../TimeStart/TimeStart'
 import ReUseCounter from '../Counter/Counter'
 import AboutReact from '../AboutReact/AboutReact'
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap'
 import InputGroupText from 'react-bootstrap/esm/InputGroupText'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Login = ()=>{
+
+  const resetForm = {
+    userName:'',
+    password:''
+  }
+
+  const [login, setLogin] = useState({...resetForm})
+  const navigate = useNavigate()
+  const [error, setError] = useState({})
+  const handleChange=(e)=>{
+    const {name, value} = e.target
+
+    if(name === 'userName' && value.length > 10) return;
+    if(name === 'password' && value.length > 8) return
+
+    setLogin({...login, [name]: value})
+    console.log(login, 'user details')
+  }
+  const handleSubmit=(e)=>{
+    e.preventDefault()
+    const errors = {}
+    alert(JSON.stringify(login, null, 2))
+
+    if(!login.userName.trim()){
+        errors.userName = 'Please enter username'
+    }else if(login.userName < 10){
+        errors.userName = 'please enter maximum 10 characters'
+    }else if(!/^[a-zA-Z0-9_@]/.test(login.userName)){
+        errors.userName = 'Username can only contain letters, numbers, underscore, and @'
+    }
+
+    if(!login.password.trim()){
+        errors.password = 'please enter password'
+    }else if(login.password.length < 10){
+        errors.password = 'please enter password'
+    }else if(!/[!@&*#0-9:{}]/.test(login.password)){
+        errors.password = 'Password must contain at least one special character'
+    }
+
+    if(Object.keys(errors).length === 0){
+        navigate('/home')
+    }else{
+        setError(errors)
+    }
+    setLogin(resetForm)
+
+  }
 
     return(
         <section className='info-login'>
@@ -18,32 +65,31 @@ const Login = ()=>{
                             <h1 className='text-white'>Login</h1>
                             <h6 className='mb-5'>Please eneter you Login and Password</h6>
                         </div>
-                        <Form className='info-form'>
-                                <InputGroup className='mb-4 border rounded-2'>
-                                    <InputGroupText className='bg-transparent border border-0 p-0'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
-                                    class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                                    </svg>
+                        <Form className='info-form' onSubmit={handleSubmit}>
+                                <InputGroup className={`border rounded-2 ${error.userName ? 'mb-2' : 'mb-4'}`}>
+                                    <InputGroupText className='bg-transparent border border-0'>
+                                         <i class="bi bi-person-fill"></i>
                                     </InputGroupText>
-                                    <FormControl placeholder='Username or E-mail' className='bg-transparent border border-0' />
+                                    <FormControl placeholder='Username or E-mail' onChange={handleChange} value={login.userName}
+                                   autoComplete='off' className='bg-transparent border border-0' name='userName' />
                                 </InputGroup>
-                                <InputGroup className='mb-1 border rounded-2'>
-                                    <InputGroupText className='bg-transparent border border-0 p-0'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
-                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
-                                    </svg>
+                                <p>{error.userName && <small className='text-white'>{error.userName}</small>}</p>
+                                <InputGroup className={`border rounded-2 ${error.password ? 'mb-2' : 'mb-4'}`}>
+                                    <InputGroupText className='bg-transparent border border-0'>
+                                        <i class="bi bi-eye-fill"></i>
                                     </InputGroupText>
-                                    <FormControl placeholder='Password' className='bg-transparent border border-0' />
+                                    <FormControl placeholder='Password' type='password' name='password' onChange={handleChange} 
+                                    value={login.password}
+                                    className='bg-transparent border border-0' />
                                 </InputGroup>
+                                <p>{error.password && <small className='text-white'>{error.password}</small>}</p>
                                 <div className='d-flex align-items-end justify-content-end mb-4'>
                                     <Link to="" className='text-decoration-none'>
                                         <small className='text-white fst-italic fw-bolder'>Forgot password?</small>
                                     </Link>
                                 </div>
                                 <div className='p-0'>
-                                    <Button variant='success' className='w-100'>Login</Button>
+                                    <Button variant='success' type='submit' className='w-100'>Login</Button>
                                 </div>
                         </Form>
                         </div>
